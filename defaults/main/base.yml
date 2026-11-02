@@ -1,0 +1,4 @@
+---
+victoriastack_base_dir: "/srv/victoriastack"
+
+victoriastack_network_name: "victoriastack_network"

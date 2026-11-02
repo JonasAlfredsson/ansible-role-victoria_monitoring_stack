@@ -1,0 +1,79 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+        max_concurrent_streams: 1024
+      http:
+        endpoint: 0.0.0.0:4318
+
+
+processors:
+  # Limit the amount of memory the collector can use before dropping data.
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 75
+    spike_limit_percentage: 15
+
+  # Try to batch data to reduce the number of requests sent to the backend.
+  batch:
+    timeout: 1s
+    send_batch_size: 8192
+{% if victoriastack_collector_processors | length > 0 %}
+
+  # Custom processors
+  {{ victoriastack_collector_processors | to_nice_yaml(indent=2) | indent(2) }}
+{% endif %}
+
+
+exporters:
+  otlp_http/metrics:
+    endpoint: "http://{{ victoriastack_metrics_container_name }}:8428/opentelemetry"
+    tls:
+      insecure: true
+    encoding: proto
+    compression: gzip
+{% if victoriastack_collector_exporters_metrics_settings | length > 0 %}
+
+    {{ victoriastack_collector_exporters_metrics_settings | to_nice_yaml(indent=2) | indent(4) }}
+{% endif %}
+
+
+  otlp_http/logs:
+    endpoint: "http://{{ victoriastack_logs_container_name }}:9428/insert/opentelemetry"
+    tls:
+      insecure: true
+    encoding: proto
+    compression: gzip
+{% if victoriastack_collector_exporters_logs_settings | length > 0 %}
+
+    {{ victoriastack_collector_exporters_logs_settings | to_nice_yaml(indent=2) | indent(4) }}
+{% endif %}
+
+
+  otlp_http/traces:
+    endpoint: "http://{{ victoriastack_traces_container_name }}:10428/insert/opentelemetry"
+    tls:
+      insecure: true
+    encoding: proto
+    compression: gzip
+{% if victoriastack_collector_exporters_traces_settings | length > 0 %}
+
+    {{ victoriastack_collector_exporters_traces_settings | to_nice_yaml(indent=2) | indent(4) }}
+{% endif %}
+
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: {{ (["memory_limiter"] + victoriastack_collector_pipeline_metrics_processors + ["batch"]) | to_yaml(default_flow_style=True) | trim }}
+      exporters: [otlp_http/metrics]
+    logs:
+      receivers: [otlp]
+      processors: {{ (["memory_limiter"] + victoriastack_collector_pipeline_logs_processors + ["batch"]) | to_yaml(default_flow_style=True) | trim }}
+      exporters: [otlp_http/logs]
+    traces:
+      receivers: [otlp]
+      processors: {{ (["memory_limiter"] + victoriastack_collector_pipeline_traces_processors + ["batch"]) | to_yaml(default_flow_style=True) | trim }}
+      exporters: [otlp_http/traces]

@@ -1,0 +1,25 @@
+---
+- name: Create data directory for Victoria Traces database
+  ansible.builtin.file:
+    path: "{{ victoriastack_base_dir }}/vtraces"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: '0750'
+
+- name: Deploy Victoria Traces
+  community.docker.docker_container:
+    name: "{{ victoriastack_traces_container_name }}"
+    image: "{{ victoriastack_traces_container_image }}"
+    state: started
+    restart_policy: unless-stopped
+    networks:
+      - name: "{{ victoriastack_network_name }}"
+    comparisons:
+      networks: strict
+    published_ports: "{{ victoriastack_traces_published_ports }}"
+    volumes:
+      - "{{ victoriastack_base_dir }}/vtraces/:/vtraces/"
+    command:
+      - "-storageDataPath=/vtraces/"
+      - "-retentionPeriod={{ victoriastack_traces_retention_period }}"

@@ -1,0 +1,25 @@
+---
+- name: Create data directory for Victoria Metrics database
+  ansible.builtin.file:
+    path: "{{ victoriastack_base_dir }}/vmetrics"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: '0750'
+
+- name: Deploy Victoria Metrics
+  community.docker.docker_container:
+    name: "{{ victoriastack_metrics_container_name }}"
+    image: "{{ victoriastack_metrics_container_image }}"
+    state: started
+    restart_policy: unless-stopped
+    networks:
+      - name: "{{ victoriastack_network_name }}"
+    comparisons:
+      networks: strict
+    published_ports: "{{ victoriastack_metrics_published_ports }}"
+    volumes:
+      - "{{ victoriastack_base_dir }}/vmetrics/:/vmetrics/"
+    command:
+      - "-storageDataPath=/vmetrics/"
+      - "-retentionPeriod={{ victoriastack_metrics_retention_period }}"

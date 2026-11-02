@@ -1,0 +1,29 @@
+---
+- name: Create base directory
+  ansible.builtin.file:
+    path: "{{ victoriastack_base_dir }}"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: '0755'
+
+- name: Create isolated Docker network
+  community.docker.docker_network:
+    name: "{{ victoriastack_network_name }}"
+    state: present
+
+- name: Configure Victoria Metrics
+  ansible.builtin.import_tasks: metrics.yml
+
+- name: Configure Victoria Logs
+  ansible.builtin.import_tasks: logs.yml
+
+- name: Configure Victoria Traces
+  ansible.builtin.import_tasks: traces.yml
+
+- name: Configure OpenTelemetry Collector
+  ansible.builtin.import_tasks: collector.yml
+
+- name: Configure Grafana
+  ansible.builtin.import_tasks: grafana.yml
+  when: victoriastack_grafana_enabled

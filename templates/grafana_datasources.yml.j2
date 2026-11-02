@@ -1,0 +1,24 @@
+apiVersion: 1
+
+datasources:
+  - name: VictoriaMetrics
+    type: prometheus
+    url: http://{{ victoriastack_metrics_container_name }}:8428
+    access: proxy
+    isDefault: true
+    editable: false
+    {{ victoriastack_grafana_datasources_metrics | to_nice_yaml(indent=2) | indent(4) }}
+
+  - name: VictoriaLogs
+    type: victoriametrics-logs-datasource
+    url: http://{{ victoriastack_logs_container_name }}:9428
+    access: proxy
+    editable: false
+    {{ victoriastack_grafana_datasources_logs | to_nice_yaml(indent=2) | indent(4) }}
+
+  - name: VictoriaTraces
+    type: jaeger
+    url: http://{{ victoriastack_traces_container_name }}:10428/select/jaeger
+    access: proxy
+    editable: false
+    {{ victoriastack_grafana_datasources_traces | to_nice_yaml(indent=2) | indent(4) }}

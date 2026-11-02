@@ -1,0 +1,63 @@
+---
+victoriastack_grafana_enabled: true
+victoriastack_grafana_admin_user: "admin"
+victoriastack_grafana_container_version: "latest"
+victoriastack_grafana_container_name: "grafana"
+victoriastack_grafana_container_image: "grafana/grafana:{{ victoriastack_grafana_container_version }}"
+
+# Ports exposed by Grafana.
+victoriastack_grafana_published_ports:
+  - "3000:3000"
+
+# List of Grafana plugins to pre-install. Already includes the necessary plugin
+# for Victoria Logs.
+victoriastack_grafana_plugins_preinstall: []
+
+# Grafana is configured via environment variables. You can add additional
+# environment variables for full customization, however, the "defaults" below
+# are intended to not be changed directly as they are required for VictoriaStack
+# to work properly.
+victoriastack_grafana_container_env_extra: {}
+_victoriastack_grafana_container_env_defaults:
+  GF_PLUGINS_PREINSTALL: "{{ (['victoriametrics-logs-datasource'] + victoriastack_grafana_plugins_preinstall) | join(',') }}"
+  GF_USERS_ALLOW_SIGN_UP: "false"
+  GF_SECURITY_ADMIN_USER: "{{ victoriastack_grafana_admin_user }}"
+  GF_SECURITY_ADMIN_PASSWORD: "{{ victoriastack_grafana_admin_password }}"
+
+
+#
+# Grafana datasources
+#
+# Configure optional settings to the different data sources. The default values
+# here are intended to help you link traces and logs more easily.
+victoriastack_grafana_datasources_metrics:
+  jsonData:
+    httpMethod: POST  # Some small speed and stability improvements
+    manageAlerts: true
+    prometheusType: Prometheus
+    defaultQueryEditorMode: "code"
+    incrementalQueryOverlapWindow: 10s
+    disableMetricsLookup: false
+    timeInterval: "10s"
+    queryTimeout: "30s"
+
+victoriastack_grafana_datasources_logs:
+  jsonData:
+    defaultQuery: ""
+    otelPreset: # Look for OTel standard fields in logs and traces, and link them together.
+      enabled: true
+      datasourceUid: 'VictoriaTraces'
+      detection: #
+          traceIdField: trace_id
+          severity:
+            field: severity_text
+            valueCase: string
+            source: manual
+
+victoriastack_grafana_datasources_traces:
+  jsonData:
+    traceToLogs:  # Enables you to jump from a span directly into matching logs
+      datasourceUid: 'VictoriaLogs'
+      tags: ['host.name', 'service.name']
+      filterByTraceId: true
+      filterBySpanId: false

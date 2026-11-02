@@ -1,0 +1,25 @@
+---
+- name: Create data directory for Victoria Logs database
+  ansible.builtin.file:
+    path: "{{ victoriastack_base_dir }}/vlogs"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: '0750'
+
+- name: Deploy Victoria Logs
+  community.docker.docker_container:
+    name: "{{ victoriastack_logs_container_name }}"
+    image: "{{ victoriastack_logs_container_image }}"
+    state: started
+    restart_policy: unless-stopped
+    networks:
+      - name: "{{ victoriastack_network_name }}"
+    comparisons:
+      networks: strict
+    published_ports: "{{ victoriastack_logs_published_ports }}"
+    volumes:
+      - "{{ victoriastack_base_dir }}/vlogs/:/vlogs"
+    command:
+      - "-storageDataPath=/vlogs/"
+      - "-retentionPeriod={{ victoriastack_logs_retention_period }}"

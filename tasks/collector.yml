@@ -1,0 +1,32 @@
+---
+- name: Create directory for OTel Collector
+  ansible.builtin.file:
+    path: "{{ victoriastack_base_dir }}/collector"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: '0755'
+
+- name: Copy OTel Collector configuration
+  ansible.builtin.template:
+    src: otel_collector.yml.j2
+    dest: "{{ victoriastack_base_dir }}/collector/config.yaml"
+    mode: '0644'
+  register: otel_collector_config
+
+- name: Deploy OpenTelemetry Collector
+  community.docker.docker_container:
+    name: "{{ victoriastack_collector_container_name }}"
+    image: "{{ victoriastack_collector_container_image }}"
+    state: "started"
+    restart: "{{ otel_collector_config.changed | bool }}"
+    restart_policy: unless-stopped
+    networks:
+      - name: "{{ victoriastack_network_name }}"
+    comparisons:
+      networks: strict
+    published_ports: "{{ victoriastack_collector_published_ports }}"
+    volumes:
+      - "{{ victoriastack_base_dir }}/collector/:/etc/otelcol/:ro"
+    command:
+      - "--config=/etc/otelcol/config.yaml"

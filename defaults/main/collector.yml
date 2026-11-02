@@ -1,0 +1,72 @@
+---
+victoriastack_collector_container_version: "latest"
+victoriastack_collector_container_name: "otel-collector"
+victoriastack_collector_container_image: "otel/opentelemetry-collector-contrib:{{ victoriastack_collector_container_version }}"
+
+# Ports exposed by the OpenTelemetry Collector.
+victoriastack_collector_published_ports:
+  - "4317:4317" # Public OTLP gRPC endpoint
+  - "4318:4318" # Public OTLP HTTP endpoint
+
+
+#
+# Custom processors
+#
+# These are added as inline YAML to to configuration, so it is possible to
+# write any valid OpenTelemetry Collector processor configuration here.
+victoriastack_collector_processors: {}
+
+# Then you will need to include relevant processors to the relevant pipelines.
+victoriastack_collector_pipeline_metrics_processors: []
+victoriastack_collector_pipeline_logs_processors: []
+victoriastack_collector_pipeline_traces_processors: []
+
+
+#
+# Custom options for Exporters
+#
+# By default just tune some timeouts and retry settings.
+victoriastack_collector_exporters_metrics_settings:
+  timeout: 10s
+  http_settings:
+    max_idle_conns: 100
+    idle_conn_timeout: 90s
+  sending_queue:
+    enabled: true
+    num_consumers: 4
+    queue_size: 5000
+  retry_on_failure:
+    enabled: true
+    initial_interval: 2s
+    max_interval: 15s
+    max_elapsed_time: 5h
+
+victoriastack_collector_exporters_logs_settings:
+  timeout: 10s
+  http_settings:
+    max_idle_conns: 100
+    idle_conn_timeout: 90s
+  sending_queue:
+    enabled: true
+    num_consumers: 4
+    queue_size: 5000
+  retry_on_failure:
+    enabled: true
+    initial_interval: 2s
+    max_interval: 15s
+    max_elapsed_time: 5h
+
+victoriastack_collector_exporters_traces_settings:
+  timeout: 10s
+  http_settings:
+    max_idle_conns: 100
+    idle_conn_timeout: 90s
+  sending_queue:
+    enabled: true
+    num_consumers: 4
+    queue_size: 5000
+  retry_on_failure:
+    enabled: true
+    initial_interval: 2s
+    max_interval: 15s
+    max_elapsed_time: 5h

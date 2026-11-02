@@ -1,0 +1,36 @@
+---
+- name: Create directory structure for Grafana
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: '472'
+    group: 'root'
+    mode: '0750'
+  loop:
+    - "{{ victoriastack_base_dir }}/grafana"
+    - "{{ victoriastack_base_dir }}/grafana/datasources"
+    - "{{ victoriastack_base_dir }}/grafana/data"
+
+- name: Copy Grafana datasources configuration
+  ansible.builtin.template:
+    src: "grafana_datasources.yml.j2"
+    dest: "{{ victoriastack_base_dir }}/grafana/datasources/victoria-backends.yml"
+    mode: '0644'
+  register: grafana_datasources_config
+
+- name: Deploy Grafana
+  community.docker.docker_container:
+    name: "{{ victoriastack_grafana_container_name }}"
+    image: "{{ victoriastack_grafana_container_image }}"
+    state: started
+    restart: "{{ grafana_datasources_config.changed | bool }}"
+    restart_policy: unless-stopped
+    networks:
+      - name: "{{ victoriastack_network_name }}"
+    comparisons:
+      networks: strict
+    env: "{{ victoriastack_grafana_container_env_extra | combine(_victoriastack_grafana_container_env_defaults) }}"
+    published_ports: "{{ victoriastack_grafana_published_ports }}"
+    volumes:
+      - "{{ victoriastack_base_dir }}/grafana/datasources:/etc/grafana/provisioning/datasources:ro"
+      - "{{ victoriastack_base_dir }}/grafana/data:/var/lib/grafana"

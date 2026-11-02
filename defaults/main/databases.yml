@@ -1,0 +1,28 @@
+---
+
+#
+# Metrics
+#
+victoriastack_metrics_container_version: "latest"
+victoriastack_metrics_container_name: "victoriametrics"
+victoriastack_metrics_container_image: "victoriametrics/victoria-metrics:{{ victoriastack_metrics_container_version }}"
+victoriastack_metrics_published_ports: []
+victoriastack_metrics_retention_period: "3"
+
+#
+# Logs
+#
+victoriastack_logs_container_version: "latest"
+victoriastack_logs_container_name: "victorialogs"
+victoriastack_logs_container_image: "victoriametrics/victoria-logs:{{ victoriastack_logs_container_version }}"
+victoriastack_logs_published_ports: []
+victoriastack_logs_retention_period: "3"
+
+#
+# Traces
+#
+victoriastack_traces_container_version: "latest"
+victoriastack_traces_container_name: "victoriatraces"
+victoriastack_traces_container_image: "victoriametrics/victoria-traces:{{ victoriastack_traces_container_version }}"
+victoriastack_traces_published_ports: []
+victoriastack_traces_retention_period: "3"
