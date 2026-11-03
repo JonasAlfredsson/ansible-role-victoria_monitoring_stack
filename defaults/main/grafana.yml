@@ -46,8 +46,8 @@ victoriastack_grafana_datasources_logs:
     defaultQuery: ""
     otelPreset: # Look for OTel standard fields in logs and traces, and link them together.
       enabled: true
-      datasourceUid: 'VictoriaTraces'
-      detection: #
+      tracesDatasourceUid: 'VictoriaTraces'
+      detection:
           traceIdField: trace_id
           severity:
             field: severity_text
@@ -56,8 +56,10 @@ victoriastack_grafana_datasources_logs:
 
 victoriastack_grafana_datasources_traces:
   jsonData:
-    traceToLogs:  # Enables you to jump from a span directly into matching logs
+    tracesToLogsV2:  # Enables you to jump from a span directly into matching logs.
       datasourceUid: 'VictoriaLogs'
-      tags: ['host.name', 'service.name']
-      filterByTraceId: true
-      filterBySpanId: false
+      tags:
+        - key: host.name
+        - key: service.name
+      filterByTraceID: true
+      filterBySpanID: false
