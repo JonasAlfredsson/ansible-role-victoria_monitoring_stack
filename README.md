@@ -65,6 +65,18 @@ victoriastack_<type>_container_version: "latest"
 # Defaults to 3 months, else add one of the following suffixes:
 #    h(ours), d(ays), w(eeks), M(onth), y(ears)
 victoriastack_<type>_retention_period: "3"
+
+# Custom CLI arguments if needed.
+victoriastack_<type>_container_command: []
+```
+
+For the `command` argument the `-retentionPeriod` and `-storageDataPath`
+options are already set, but other options may be included like this (if you
+want to remove the `scope.*` attributes on all OTel metrics for example):
+
+```yaml
+victoriastack_metrics_container_command:
+  - "-opentelemetry.promoteScopeMetadata=false"
 ```
 
 ### OTel Collector Gateway
@@ -75,6 +87,7 @@ data to the correct backend database based on the type.
 
 ```yaml
 victoriastack_collector_container_version: "latest"
+victoriastack_collector_container_command: []
 
 victoriastack_collector_published_ports:
   - "4317:4317" # Public OTLP gRPC endpoint
@@ -114,6 +127,7 @@ configure by yourself:
 ```yaml
 victoriastack_grafana_enabled: true
 victoriastack_grafana_container_version: "latest"
+victoriastack_grafana_container_command: []
 
 victoriastack_grafana_admin_user: "admin"
 victoriastack_grafana_admin_password: "admin"

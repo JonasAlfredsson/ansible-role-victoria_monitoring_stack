@@ -22,6 +22,7 @@
   community.docker.docker_container:
     name: "{{ victoriastack_grafana_container_name }}"
     image: "{{ victoriastack_grafana_container_image }}"
+    command: "{{ [] + victoriastack_grafana_container_command }}"
     state: started
     restart: "{{ grafana_datasources_config.changed | bool }}"
     restart_policy: unless-stopped

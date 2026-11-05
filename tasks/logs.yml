@@ -20,6 +20,4 @@
     published_ports: "{{ victoriastack_logs_published_ports }}"
     volumes:
       - "{{ victoriastack_base_dir }}/vlogs/:/vlogs"
-    command:
-      - "-storageDataPath=/vlogs/"
-      - "-retentionPeriod={{ victoriastack_logs_retention_period }}"
+    command: "{{ victoriastack_logs_container_command + ['-storageDataPath=/vlogs/', '-retentionPeriod=' ~ victoriastack_logs_retention_period] }}"

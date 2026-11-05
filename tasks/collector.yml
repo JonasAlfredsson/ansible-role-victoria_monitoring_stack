@@ -28,5 +28,4 @@
     published_ports: "{{ victoriastack_collector_published_ports }}"
     volumes:
       - "{{ victoriastack_base_dir }}/collector/:/etc/otelcol/:ro"
-    command:
-      - "--config=/etc/otelcol/config.yaml"
+    command: "{{ victoriastack_collector_container_command + ['--config=/etc/otelcol/config.yaml'] }}"

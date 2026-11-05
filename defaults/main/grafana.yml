@@ -1,9 +1,11 @@
 ---
 victoriastack_grafana_enabled: true
-victoriastack_grafana_admin_user: "admin"
 victoriastack_grafana_container_version: "latest"
 victoriastack_grafana_container_name: "grafana"
 victoriastack_grafana_container_image: "grafana/grafana:{{ victoriastack_grafana_container_version }}"
+
+victoriastack_grafana_admin_user: "admin"
+victoriastack_grafana_container_command: []
 
 # Ports exposed by Grafana.
 victoriastack_grafana_published_ports:

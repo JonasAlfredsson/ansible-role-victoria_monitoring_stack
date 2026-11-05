@@ -20,6 +20,4 @@
     published_ports: "{{ victoriastack_metrics_published_ports }}"
     volumes:
       - "{{ victoriastack_base_dir }}/vmetrics/:/vmetrics/"
-    command:
-      - "-storageDataPath=/vmetrics/"
-      - "-retentionPeriod={{ victoriastack_metrics_retention_period }}"
+    command: "{{ victoriastack_metrics_container_command + ['-storageDataPath=/vmetrics/', '-retentionPeriod=' ~ victoriastack_metrics_retention_period] }}"

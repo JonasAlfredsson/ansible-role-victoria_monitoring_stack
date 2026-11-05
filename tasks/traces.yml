@@ -20,6 +20,4 @@
     published_ports: "{{ victoriastack_traces_published_ports }}"
     volumes:
       - "{{ victoriastack_base_dir }}/vtraces/:/vtraces/"
-    command:
-      - "-storageDataPath=/vtraces/"
-      - "-retentionPeriod={{ victoriastack_traces_retention_period }}"
+    command: "{{ victoriastack_traces_container_command + ['-storageDataPath=/vtraces/', '-retentionPeriod=' ~ victoriastack_traces_retention_period] }}"
